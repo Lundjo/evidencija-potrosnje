@@ -62,6 +62,8 @@ namespace Server
             return importedFileTable.ToDictionary(kv => kv.Key, kv => kv.Value);
         }
 
+
+        //Fje koje reaguje na event 
         public void OnFileValidated(object source, Audit a)
         {
             SaveAudit(a);

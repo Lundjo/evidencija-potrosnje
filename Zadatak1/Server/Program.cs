@@ -17,7 +17,6 @@ namespace Server
                 Console.WriteLine("Service is open,waiting for files");
                 Console.ReadKey();
 
-
             }
         }
     }

@@ -58,3 +58,9 @@ C:\Users\dusan\OneDrive\Desktop\Virtuelizacija-dusvn\Virtuelizacija-dusvn\Zadata
 C:\Users\dusan\OneDrive\Desktop\Virtuelizacija-dusvn\Virtuelizacija-dusvn\Zadatak1\Common\obj\Debug\Common.csproj.CoreCompileInputs.cache
 C:\Users\dusan\OneDrive\Desktop\Virtuelizacija-dusvn\Virtuelizacija-dusvn\Zadatak1\Common\obj\Debug\Common.dll
 C:\Users\dusan\OneDrive\Desktop\Virtuelizacija-dusvn\Virtuelizacija-dusvn\Zadatak1\Common\obj\Debug\Common.pdb
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Common\bin\Debug\Common.dll
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Common\bin\Debug\Common.pdb
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Common\obj\Debug\Common.csproj.AssemblyReference.cache
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Common\obj\Debug\Common.csproj.CoreCompileInputs.cache
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Common\obj\Debug\Common.dll
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Common\obj\Debug\Common.pdb

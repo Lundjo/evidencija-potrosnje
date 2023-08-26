@@ -144,3 +144,14 @@ C:\Users\dusan\OneDrive\Desktop\Virtuelizacija-dusvn\Virtuelizacija-dusvn\Zadata
 C:\Users\dusan\OneDrive\Desktop\Virtuelizacija-dusvn\Virtuelizacija-dusvn\Zadatak1\Server\obj\Debug\Server.csproj.CopyComplete
 C:\Users\dusan\OneDrive\Desktop\Virtuelizacija-dusvn\Virtuelizacija-dusvn\Zadatak1\Server\obj\Debug\Server.exe
 C:\Users\dusan\OneDrive\Desktop\Virtuelizacija-dusvn\Virtuelizacija-dusvn\Zadatak1\Server\obj\Debug\Server.pdb
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\bin\Debug\Server.exe.config
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\bin\Debug\Server.exe
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\bin\Debug\Server.pdb
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\bin\Debug\Common.dll
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\bin\Debug\Common.pdb
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\obj\Debug\Server.csproj.AssemblyReference.cache
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\obj\Debug\Server.csproj.SuggestedBindingRedirects.cache
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\obj\Debug\Server.csproj.CopyComplete
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\obj\Debug\Server.exe
+C:\Users\Ludi\Desktop\virt\VirtuelizacijaProcesa\Zadatak1\Server\obj\Debug\Server.pdb

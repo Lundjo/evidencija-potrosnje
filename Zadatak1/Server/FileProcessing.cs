@@ -13,6 +13,7 @@ namespace Server
 {
     public class FileProcessing
     {
+        //pitaj stefana kako sta sve 
         public event EventHandler ListOfFilesProccessed;
         public event EventHandler<Audit> FileValidated;
         public event EventHandler<Load> RowProccessed;
@@ -20,6 +21,7 @@ namespace Server
 
         private InMemoryDatabase baza = new InMemoryDatabase();
         private XMLDataBase xmlBaza = new XMLDataBase();
+        //kupi iz app configa kako ce da radi program 
         string metodaProcesiranja = ConfigurationManager.AppSettings["calculationType"];
         private bool useXML = ConfigurationManager.AppSettings["storageType"].Equals("XMLDB") ? true : false;
 
@@ -33,23 +35,26 @@ namespace Server
             }
 
 
+
             List<ImportedFile> processedFiles = new List<ImportedFile>(listOfFiles.Count);
+            //toliko ce maks da bude procesiranih 
             foreach (FileOverNetwork fon in listOfFiles)
             {
-                fon.MS.Seek(0, SeekOrigin.Begin);
-                var strim = new StreamReader(fon.MS);
+                fon.MS.Seek(0, SeekOrigin.Begin); // pomera se na pocetak zbog citanja fajla 
+                var strim = new StreamReader(fon.MS); // strim rider ce da cita to konkretno od pocetka 
                 Audit izvestajZaFajl = ValidateFile(fon.FileName, strim);
                 if (izvestajZaFajl.MessageType == MessageType.Info || izvestajZaFajl.MessageType == MessageType.Warning)
                 {
-                    processedFiles.Add(ProcessStream(strim, fon));
-
+                    processedFiles.Add(ProcessStream(strim, fon,izvestajZaFajl));
+                    
                 }
                 strim.Dispose();
                 fon.Dispose();
             }
 
-            List<ImportedFile> kojiImajuObeVrednosti = FilesWithBothValues(processedFiles);
-            processedFiles.Clear();
+            List<ImportedFile> kojiImajuObeVrednosti = FilesWithBothValues(processedFiles); // on ima po jedan imported file za datum ciji Loadovi imaju obe vrednosti
+
+            processedFiles.Clear(); // ne trebaju vise 
             List<CalculatedFile> results = new List<CalculatedFile>(kojiImajuObeVrednosti.Count);
             foreach (ImportedFile file in kojiImajuObeVrednosti)
             {
@@ -63,6 +68,13 @@ namespace Server
             }
             return results;
         }
+        /// <summary>
+        /// Imported file treba da bi mogao da izvuce datum 
+        /// 
+        /// </summary>
+        /// <param name="loads"></param>
+        /// <param name="file"></param>
+        /// <param name="results"></param>
 
         private void WriteLoadsToFile(List<Load> loads, ImportedFile file, List<CalculatedFile> results)
         {
@@ -75,12 +87,18 @@ namespace Server
                 double rezultat = Izracunaj(l, metodaProcesiranja);
                 sw.Write(l.TimeStamp.ToString("yyyy-MM-dd HH:mm") + "," + rezultat.ToString() + '\n');
             }
-            sw.Flush();
+            sw.Flush(); // za svaki slucaj da ocisti writer 
             string resultFileName = "result_" + TakeDate(file.Filename).ToString("yyyy_MM_dd") + ".csv";
             results.Add(new CalculatedFile(ms, resultFileName));
             loads.Clear();
         }
 
+        /// <summary>
+        /// Krajnji datum je ustv dan pored ovog datuma iz fajla 
+        /// I onda uzima loadove za svaki sat do kraja tog naseg dana iz fajla name-a 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         private List<Load> LoadsFromFile(ImportedFile file)
         {
             List<Load> loads = new List<Load>();
@@ -95,6 +113,11 @@ namespace Server
             return loads;
         }
 
+        /// <summary>
+        /// Provera da li u listi ImportedFiles postoje dva objekta ciji se datumi poklapaju i to nam znaci da su oba ispravna i da imaju obe vrednosti u jednom Loadu
+        /// </summary>
+        /// <param name="processedFiles"></param>
+        /// <returns></returns>
         private List<ImportedFile> FilesWithBothValues(List<ImportedFile> processedFiles)
         {
             List<ImportedFile> fwbv = new List<ImportedFile>();
@@ -158,7 +181,7 @@ namespace Server
                 }
                 else
                 {
-                    return PovratniAudit(MessageType.Error, fileName, "FileName Date se ne poklapaju");
+                    return PovratniAudit(MessageType.Error, fileName, "FileName i Date se ne poklapaju");
                 }
             }
             if (!(num_hours == hours))
@@ -180,11 +203,11 @@ namespace Server
 
         private Audit ValidateFile(string fileName, StreamReader strim)
         {
-            FileValidated += baza.OnFileValidated;
-            string dateString = fnToDate(fileName);
-            DateTime time = TakeDate(fileName);
-            int month = TakeMonth(fileName);
-            int year = TakeYear(fileName);
+            FileValidated += baza.OnFileValidated; // enable zapis u in memory bazu 
+            string dateString = fnToDate(fileName); //prodjeno 
+            DateTime time = TakeDate(fileName); // prodjeno 
+            int month = TakeMonth(fileName); // 
+            int year = TakeYear(fileName); // 
             int hours = CheckHours(month, LastSundayOfMonth(year, month), time);
             int num_hours = 0;
             string header = strim.ReadLine();
@@ -199,12 +222,24 @@ namespace Server
             }
         }
 
-        private ImportedFile ProcessStream(StreamReader sr, FileOverNetwork fon)
+        /// <summary>
+        /// Uzima red po red za neki fajl i pravi Loadove ostalo procitaj sam nisi retardiran 
+        /// Malo odstupa od dijagram zato sto se Imported File kreira tek na kraju ali nista ne remeti rad programa 
+        /// Znaci na kraju da se sve vrste iz fajla obrade 
+        /// </summary>
+        /// <param name="sr"></param>
+        /// <param name="fon"></param>
+        /// <param name="audit"></param>
+        /// <returns></returns>
+        private ImportedFile ProcessStream(StreamReader sr, FileOverNetwork fon,Audit audit)
         {
-            RowProccessed += baza.OnRowProccessed;
+            RowProccessed += baza.OnRowProccessed; // da moze jedan taj load da upise u bazu 
             StreamProccessed += baza.OnStreamProccessed;
             sr.BaseStream.Seek(0, SeekOrigin.Begin);
-            sr.ReadLine();
+            if (audit.MessageType == MessageType.Info)
+            {
+                sr.ReadLine(); // ako je ispravno cita heder i preskace ga 
+            }
             ImportedFile trenutniImpf = new ImportedFile(fon.FileName);
             while (!sr.EndOfStream)
             {
@@ -228,7 +263,7 @@ namespace Server
                     load.MeasuredFileID = trenutniImpf.Id;
                 }
 
-                OnRowProccessed(load);
+                OnRowProccessed(load); // na kraju pozove da ih upise sve 
             }
             RowProccessed -= baza.OnRowProccessed;
 
@@ -258,30 +293,37 @@ namespace Server
 
         private string[] Dates(string fn)
         {
+            // da izvuce .csv 
+            // ostaje ti forecast_2023_01_01 
             string[] FileNameTimeStamp = fn.Split('.');
+            //ovde vrati niz gde je nulti el forecast 
+            // prvi 2023 
+            // drugi 01 
+            //treci 01 
             return FileNameTimeStamp[0].Split('_');
         }
 
+        //izvlaci  2023-01-01 
         private string fnToDate(string fn)
         {
-            string[] date = Dates(fn);
+            string[] date = Dates(fn); // pogledaj gore komentar 
             return date[1] + "-" + date[2] + "-" + date[3];
         }
         private DateTime TakeDate(string fn)
         {
-            string[] date = Dates(fn);
+            string[] date = Dates(fn); // [forecast] [2023] [01] [01] 
             string[] day_and_month = new string[] { date[1], date[2], date[3] }; 
             return new DateTime(Int32.Parse(day_and_month[0]), Int32.Parse(day_and_month[1]), Int32.Parse(day_and_month[2]));
         }
 
         private int TakeMonth(string fn)
         {
-            string[] date = Dates(fn);
+            string[] date = Dates(fn); // vrati samo forecast 2023 01 01 i onda uzme na indeksu 2 tj 01 
             return Int32.Parse(date[2]);
         }
         private int TakeYear(string fn)
         {
-            string[] date = Dates(fn);
+            string[] date = Dates(fn); // isto kao sva ova ostala govna jebo sam im mater 
             return Int32.Parse(date[1]);
         }
         private string RowDate(string row)
@@ -293,11 +335,25 @@ namespace Server
 
         public DateTime LastSundayOfMonth(int year, int month)
         {
+            // ova linija vrati ceo datum samo sa poslednjim danom za mesec i godinu npr 
+            //2023 01 31 
             DateTime lastDayOfMonth = new DateTime(year, month, DateTime.DaysInMonth(year, month));
+
+            // petak pretvra u 5 utorak u 2 itd ,cast ima priorite 
             int daysToLastSunday = ((int)lastDayOfMonth.DayOfWeek - (int)DayOfWeek.Sunday + 7) % 7;
+            // siftuje i vrati koja je poslednja NEDELJA KAO DAN U MESECU 
             return lastDayOfMonth.AddDays(-daysToLastSunday);
         }
-
+        /// <summary>
+        /// Prvi parametar mesec konkretnog fileNamea 
+        /// Poslednja nedelja u mesecu 
+        /// Full datum iz fajla
+        /// 
+        /// </summary>
+        /// <param name="month"></param>
+        /// <param name="lastSunday"></param>
+        /// <param name="date"></param>
+        /// <returns></returns>
         public int CheckHours(int month, DateTime lastSunday, DateTime date)
         {
             if (month == 3 && date == lastSunday)
@@ -314,6 +370,10 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Ako bi bilo null niko nije pretplacen na event 
+        /// Obavestava sve koji su pretplaceni na event,koji su pretplaceni i sta treba da odrade 
+        /// </summary>
         protected virtual void OnListOfFilesProccessed()
         {
             if (ListOfFilesProccessed != null)

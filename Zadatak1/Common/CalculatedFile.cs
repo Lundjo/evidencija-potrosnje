@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 
 namespace Common
 {
+    /// <summary>
+    /// Pogledaj na internetu malo taj dispose patern 
+    /// Ili sa vezbi 
+    /// </summary>
     [DataContract]
     public class CalculatedFile : IDisposable
     {
@@ -43,7 +47,7 @@ namespace Common
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this); // da ne ide u onaj queue
         }
 
         ~CalculatedFile()

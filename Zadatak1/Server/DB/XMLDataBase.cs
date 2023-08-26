@@ -24,7 +24,12 @@ namespace Server
             this.importedFilePath = Path.Combine(baseDirectory, "ImportedFiles.xml");
             this.loadFilePath = Path.Combine(baseDirectory, "Loads.xml");
         }
-
+        /// <summary>
+        /// Prolazi kroz sve audite i updatuje ili ih pravi 
+        /// Proverava da li postoji taj xml fajl,ako ne postoji kreira 
+        /// I onda preko file stream upisuje,MORA DA SE PRETVORI U LISTU ZATO STO NECE MOCI DA SERIJALIZUJE 
+        /// </summary>
+        /// <param name="audits"></param>
         public void SaveAudits(Dictionary<int, Audit> audits)
         {
             Dictionary<int, Audit> existingAudits = LoadAudits();
@@ -46,6 +51,10 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Isto kao i za ono gore 
+        /// </summary>
+        /// <param name="importedFiles"></param>
         public void SaveImportedFiles(Dictionary<int, ImportedFile> importedFiles)
         {
             Dictionary<int, ImportedFile> existingImportedFiles = LoadImportedFiles();
@@ -67,6 +76,10 @@ namespace Server
             }
         }
 
+        /// <summary>
+        /// Isto 
+        /// </summary>
+        /// <param name="loads"></param>
         public void SaveLoads(Dictionary<int, Load> loads)
         {
             Dictionary<int, Load> existingLoads = LoadLoads();
@@ -87,7 +100,13 @@ namespace Server
                 serializer.Serialize(fileStream, existingLoads.Values.ToList());
             }
         }
-
+        /// <summary>
+        /// Proveri da li postoji xml 
+        /// Ako postoji taj xml 
+        /// Proverava duzinu da ne radi za dzabe serijalizaciju 
+        /// I onda deserijalizuje da bi mogao da vrati dictionary ,pre toga pretvori u dic 
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<int, Audit> LoadAudits()
         {
             if (File.Exists(auditFilePath))
@@ -98,13 +117,18 @@ namespace Server
                     using (XmlReader reader = XmlReader.Create(auditFilePath))
                     {
                         XmlSerializer serializer = new XmlSerializer(typeof(List<Audit>));
+                        //Foreach da iz liste audita za svaki objekat prodje i uzme njegov id kao key a value audit 
                         return ((List<Audit>)serializer.Deserialize(reader)).ToDictionary(audit => audit.Id);
                     }
                 }
             }
-            return new Dictionary<int, Audit>();
+            return new Dictionary<int, Audit>(); // ako ne postji fajl 
         }
 
+        /// <summary>
+        /// Isto kao gore 
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<int, ImportedFile> LoadImportedFiles()
         {
             if (File.Exists(importedFilePath))
@@ -122,6 +146,10 @@ namespace Server
             return new Dictionary<int, ImportedFile>();
         }
 
+        /// <summary>
+        /// Isto kao gore 
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<int, Load> LoadLoads()
         {
             if (File.Exists(loadFilePath))
@@ -139,9 +167,15 @@ namespace Server
             return new Dictionary<int, Load>();
         }
 
+        /// <summary>
+        /// Object source ko je okinuo event 
+        /// Eventargs ako se nesto salje 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
         public void OnListOfFilesProccessed(object source, EventArgs e)
         {
-            InMemoryDatabase db = new InMemoryDatabase();
+            InMemoryDatabase db = new InMemoryDatabase(); 
             SaveAudits(db.GetAllAudits());
             SaveImportedFiles(db.GetAllImportedFiles());
             SaveLoads(db.GetAllLoads());

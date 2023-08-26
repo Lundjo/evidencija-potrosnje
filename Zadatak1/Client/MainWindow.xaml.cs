@@ -27,15 +27,16 @@ namespace Client
     public partial class MainWindow : Window
     {
         private ChannelFactory<IFileHandling> factory;
-        private static IFileHandling proxy;
-        private static IFileSender fileSender;
+        private static IFileHandling proxy; //preko ovoga komuniciramo sa serverom 
+        private static IFileSender fileSender; 
         public MainWindow()
         {
 
             InitializeComponent();
             factory = new ChannelFactory<IFileHandling>("SendGetFile");
             proxy = factory.CreateChannel();
-            fileSender = new FileSender(proxy);
+            fileSender = new FileSender(proxy); // preko ovoga se pripremaju fajlovi za slanje 
+                                                // kreira se memory stream i pakuju se u strukturu FileOverNetwork
         }
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
@@ -43,9 +44,8 @@ namespace Client
             //string path = Path.Path.DirPath; // izvlacim dir path 
             if (Path.Path.FilePaths.Length != 0)
             {
-                fileSender.SendFiles(Path.Path.FilePaths);
+                fileSender.SendFiles(Path.Path.FilePaths); // samo uzme fajlove sa odredjene putanje i posalje ih 
             }
-            //Environment.Exit(0);
         }
         /// <summary>
         /// Path i da onda on krene 
@@ -56,13 +56,13 @@ namespace Client
         /// <returns></returns>
         private void ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            Path.Path.fileNames.Clear();
-            allFiles.Items.Clear(); 
+            Path.Path.fileNames.Clear();// interna struktura za cuvanje imena fajlova 
+            allFiles.Items.Clear(); // ovo je lista iz WPF-a 
             FolderBrowserDialog openFolder = new FolderBrowserDialog();
             openFolder.ShowDialog();
             if (openFolder.SelectedPath == null || openFolder.SelectedPath=="")
             {
-                openFolder.Dispose();
+                openFolder.Dispose(); // provera da li je nesto selektovano da se pokupi sa te putanje ako nije zatvara se prozor 
                 return;
             }
             GetFileNames(openFolder.SelectedPath);
@@ -80,12 +80,19 @@ namespace Client
             string[] files = SearchDirectory(dirPath);
             foreach (string filePath in files)
             {
+                // c://dusan/kurac/kita/forecast.csv 
+                // ova fja odseca sve sem forecast.csv 
                 string[] curFileName = filePath.Split('\\');
                 Path.Path.fileNames.Add(curFileName[curFileName.Length-1]);
             }
-            Path.Path.FilePaths = files;
+            Path.Path.FilePaths = files; // putanja do svih fajlova koji se izvlace prilikom jednog importa 
         }
 
+        /// <summary>
+        /// Gleda sve child dir u tom selektovanom folderu koji se zovu MEASURED i FORECAST i onda kupi sve fajlove iz njih koji pocinju sa forecast ili measured 
+        /// </summary>
+        /// <param name="dirPath"></param>
+        /// <returns></returns>
         private string[] SearchDirectory(string dirPath)
         {
             DirectoryInfo di = new DirectoryInfo(dirPath);
@@ -106,18 +113,22 @@ namespace Client
                     }
                 }
             }
-            string[] pathsArray = paths.ToArray<string>();
+            string[] pathsArray = paths.ToArray<string>(); // iz nekog razloga nije htelo da radi sa arrayom pa smo prvo pravili listu 
+                                                           // pa prebacili u array i to smo vracali 
             paths.Clear();
             return pathsArray;
         }
-
+        /// <summary>
+        /// Dodaje samo ona splitovana imena fajlova u tu listu koju ce prikazivati na UI 
+        /// </summary>
+        /// <param name="fileNames"></param>
         private void AddFileNames(List<string>fileNames)
         {
             if(fileNames.Count > 0)
             {
                 foreach (string name in fileNames)
                 {
-                    allFiles.Items.Add(name);
+                    allFiles.Items.Add(name); // list view se zove allFiles 
                 }
             }
         }
